@@ -18,12 +18,16 @@ const WaitingRoomScreen = () => {
     if (!sessionId) return
 
     const unsubscribe = observeSession(sessionId, (sessionData) => {
+      console.log('WaitingRoom: Session data received:', sessionData)
       setSession(sessionData)
       if (sessionData && user) {
-        setIsHost(sessionData.hostId === user.uid)
+        const isHostUser = sessionData.hostId === user.uid
+        setIsHost(isHostUser)
+        console.log('WaitingRoom: User is host:', isHostUser, 'Session state:', sessionData.state)
         
         // Auto-navigate to voting when session state changes to 'voting'
         if (sessionData.state === 'voting') {
+          console.log('WaitingRoom: Session state is voting, navigating to voting screen')
           navigate(`/voting/${sessionId}`)
         }
       }
@@ -56,7 +60,9 @@ const WaitingRoomScreen = () => {
   const startVoting = async () => {
     if (!sessionId) return
     
+    console.log('WaitingRoom: Starting voting for session:', sessionId)
     await updateSessionState(sessionId, 'voting')
+    console.log('WaitingRoom: Session state updated to voting, navigating...')
     navigate(`/voting/${sessionId}`)
   }
 

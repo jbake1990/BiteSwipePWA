@@ -70,9 +70,6 @@ const VotingScreen = () => {
   const { submitVote, observeSession, observeVotes } = useSession()
   const [session, setSession] = useState<any>(null)
   const [restaurants, setRestaurants] = useState(sampleRestaurants)
-  
-  // Debug: Log restaurant count
-  console.log('Restaurants loaded:', restaurants.length, restaurants.map(r => r.name))
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [showMatch, setShowMatch] = useState(false)
@@ -297,7 +294,7 @@ const VotingScreen = () => {
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-600">
-              {currentIndex + 1} of {restaurants.length} (Debug: {restaurants.length} restaurants)
+              {currentIndex + 1} of {restaurants.length}
             </p>
             {session && (
               <p className="text-sm text-gray-600">

@@ -49,6 +49,7 @@ interface SessionContextType {
   updateSessionState: (sessionId: string, state: Session['state']) => Promise<void>
   submitVote: (sessionId: string, restaurantId: string, vote: Vote['vote']) => Promise<void>
   observeSession: (sessionId: string, callback: (session: Session | null) => void) => () => void
+  observeVotes: (sessionId: string, callback: (votes: Record<string, Record<string, Vote>>) => void) => () => void
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined)
@@ -242,6 +243,21 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => off(sessionRef, 'value', unsubscribe)
   }
 
+  const observeVotes = (sessionId: string, callback: (votes: Record<string, Record<string, Vote>>) => void) => {
+    const votesRef = ref(database, `sessions/${sessionId}/votes`)
+    
+    const unsubscribe = onValue(votesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const votes: Record<string, Record<string, Vote>> = snapshot.val()
+        callback(votes)
+      } else {
+        callback({})
+      }
+    })
+
+    return () => off(votesRef, 'value', unsubscribe)
+  }
+
   const value = {
     currentSession,
     createSession,
@@ -249,7 +265,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     leaveSession,
     updateSessionState,
     submitVote,
-    observeSession
+    observeSession,
+    observeVotes
   }
 
   return (

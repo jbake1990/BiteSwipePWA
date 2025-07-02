@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion, PanInfo } from 'framer-motion'
 import { useSession } from '../contexts/SessionContext'
@@ -45,7 +45,7 @@ const sampleRestaurants = [
 const VotingScreen = () => {
   const { sessionId } = useParams<{ sessionId: string }>()
   const navigate = useNavigate()
-  const { submitVote, observeSession } = useSession()
+  const { submitVote, observeSession, observeVotes } = useSession()
   const [session, setSession] = useState<any>(null)
   const [restaurants, setRestaurants] = useState(sampleRestaurants)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -53,15 +53,47 @@ const VotingScreen = () => {
   const [showMatch, setShowMatch] = useState(false)
   const [matchedRestaurant, setMatchedRestaurant] = useState<any>(null)
   const [userVotes, setUserVotes] = useState<Record<string, 'yes' | 'no'>>({})
+  const [allVotes, setAllVotes] = useState<Record<string, Record<string, any>>>({})
 
   useEffect(() => {
     if (!sessionId) return
 
-    const unsubscribe = observeSession(sessionId, (sessionData) => {
+    const unsubscribeSession = observeSession(sessionId, (sessionData) => {
+      console.log('Session updated:', sessionData)
       setSession(sessionData)
       if (sessionData?.state !== 'voting') {
+        console.log('Session state changed, navigating to home')
         navigate('/')
       }
+    })
+
+    const unsubscribeVotes = observeVotes(sessionId, (votes) => {
+      console.log('Votes updated:', votes)
+      setAllVotes(votes)
+      
+      // Check for unanimous votes
+      Object.entries(votes).forEach(([restaurantId, participantVotes]) => {
+        const participantIds = Object.keys(participantVotes as Record<string, any>)
+        const yesVotes = participantIds.filter(id => (participantVotes as Record<string, any>)[id].vote === 'yes')
+        
+        // If all participants voted yes for this restaurant
+        if (yesVotes.length === session?.participants?.length && session?.participants?.length > 0) {
+          const restaurant = restaurants.find(r => r.id === restaurantId || r.yelpId === restaurantId)
+          if (restaurant) {
+            console.log('Unanimous vote detected for:', restaurant.name)
+            setMatchedRestaurant(restaurant)
+            setShowMatch(true)
+            toast.success('It\'s a match! 🎉')
+            
+            // Navigate to match screen after a short delay
+            setTimeout(() => {
+              navigate(`/match/${sessionId}`, { 
+                state: { restaurant: restaurant }
+              })
+            }, 1500)
+          }
+        }
+      })
     })
 
     // Simulate loading restaurants
@@ -69,25 +101,11 @@ const VotingScreen = () => {
       setIsLoading(false)
     }, 1000)
 
-    return unsubscribe
-  }, [sessionId, observeSession, navigate])
-
-  const checkForUnanimousVote = (restaurant: any) => {
-    // TODO: Implement actual unanimous vote checking from Firebase
-    // For now, simulate a match with 30% probability when voting yes
-    if (Math.random() < 0.3) {
-      setMatchedRestaurant(restaurant)
-      setShowMatch(true)
-      toast.success('It\'s a match! 🎉')
-      
-      // Navigate to match screen after a short delay
-      setTimeout(() => {
-        navigate(`/match/${sessionId}`, { 
-          state: { restaurant: restaurant }
-        })
-      }, 1500)
+    return () => {
+      unsubscribeSession()
+      unsubscribeVotes()
     }
-  }
+  }, [sessionId, observeSession, observeVotes, navigate, restaurants])
 
   const handleSwipe = async (direction: 'left' | 'right', restaurant: any) => {
     const vote = direction === 'right' ? 'yes' : 'no'
@@ -101,11 +119,6 @@ const VotingScreen = () => {
       ...prev,
       [restaurant.id]: vote
     }))
-
-    // Check for unanimous vote if voting yes
-    if (vote === 'yes') {
-      checkForUnanimousVote(restaurant)
-    }
 
     if (currentIndex < restaurants.length - 1) {
       setCurrentIndex(currentIndex + 1)

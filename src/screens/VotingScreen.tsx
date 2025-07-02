@@ -39,6 +39,28 @@ const sampleRestaurants = [
     imageURL: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400',
     address: '789 Pine St',
     yelpId: 'burger-joint-3'
+  },
+  {
+    id: '4',
+    name: 'Taco Town',
+    cuisine: 'Mexican',
+    rating: 4.3,
+    price: '$',
+    distance: '0.4 mi',
+    imageURL: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400',
+    address: '321 Elm St',
+    yelpId: 'taco-town-4'
+  },
+  {
+    id: '5',
+    name: 'Thai Delight',
+    cuisine: 'Thai',
+    rating: 4.6,
+    price: '$$',
+    distance: '0.7 mi',
+    imageURL: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=400',
+    address: '654 Maple Dr',
+    yelpId: 'thai-delight-5'
   }
 ]
 
@@ -71,6 +93,12 @@ const VotingScreen = () => {
       console.log('Votes updated:', votes)
       console.log('Current session participants:', session?.participants?.length)
       setAllVotes(votes)
+      
+      // Only check for unanimous votes if we have session data
+      if (!session?.participants) {
+        console.log('No session data yet, skipping unanimous vote check')
+        return
+      }
       
       // Check for unanimous votes
       Object.entries(votes).forEach(([restaurantId, participantVotes]) => {
@@ -131,6 +159,44 @@ const VotingScreen = () => {
     }
   }, [sessionId, observeSession, observeVotes, navigate, restaurants])
 
+  // Re-check for unanimous votes when session data becomes available
+  useEffect(() => {
+    if (session?.participants && Object.keys(allVotes).length > 0) {
+      console.log('Session data available, re-checking for unanimous votes...')
+      
+      Object.entries(allVotes).forEach(([restaurantId, participantVotes]) => {
+        const participantIds = Object.keys(participantVotes as Record<string, any>)
+        const yesVotes = participantIds.filter(id => (participantVotes as Record<string, any>)[id].vote === 'yes')
+        
+        console.log('Re-checking restaurant ID:', restaurantId)
+        console.log('Yes votes:', yesVotes.length, 'Required:', session.participants.length)
+        
+        if (yesVotes.length === session.participants.length && session.participants.length > 0) {
+          console.log('Unanimous vote found on re-check!')
+          
+          let restaurant = restaurants.find(r => r.yelpId === restaurantId)
+          if (!restaurant) {
+            restaurant = restaurants.find(r => r.id === restaurantId)
+          }
+          
+          if (restaurant) {
+            console.log('🎉 Unanimous vote detected for:', restaurant.name)
+            setMatchedRestaurant(restaurant)
+            setShowMatch(true)
+            toast.success('It\'s a match! 🎉')
+            
+            setTimeout(() => {
+              console.log('Navigating to match screen...')
+              navigate(`/match/${sessionId}`, { 
+                state: { restaurant: restaurant }
+              })
+            }, 1500)
+          }
+        }
+      })
+    }
+  }, [session, allVotes, restaurants, sessionId, navigate])
+
   const handleSwipe = async (direction: 'left' | 'right', restaurant: any) => {
     const vote = direction === 'right' ? 'yes' : 'no'
     
@@ -177,6 +243,7 @@ const VotingScreen = () => {
   }
 
   if (showMatch && matchedRestaurant) {
+    console.log('Rendering match screen - showMatch:', showMatch, 'matchedRestaurant:', matchedRestaurant.name)
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">
@@ -195,6 +262,7 @@ const VotingScreen = () => {
   }
 
   if (currentIndex >= restaurants.length && !showMatch) {
+    console.log('Rendering voting complete screen - currentIndex:', currentIndex, 'restaurants.length:', restaurants.length, 'showMatch:', showMatch)
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">

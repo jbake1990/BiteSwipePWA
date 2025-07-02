@@ -50,6 +50,9 @@ const VotingScreen = () => {
   const [restaurants, setRestaurants] = useState(sampleRestaurants)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [showMatch, setShowMatch] = useState(false)
+  const [matchedRestaurant, setMatchedRestaurant] = useState<any>(null)
+  const [userVotes, setUserVotes] = useState<Record<string, 'yes' | 'no'>>({})
 
   useEffect(() => {
     if (!sessionId) return
@@ -69,11 +72,39 @@ const VotingScreen = () => {
     return unsubscribe
   }, [sessionId, observeSession, navigate])
 
+  const checkForUnanimousVote = (restaurant: any) => {
+    // TODO: Implement actual unanimous vote checking from Firebase
+    // For now, simulate a match with 30% probability when voting yes
+    if (Math.random() < 0.3) {
+      setMatchedRestaurant(restaurant)
+      setShowMatch(true)
+      toast.success('It\'s a match! 🎉')
+      
+      // Navigate to match screen after a short delay
+      setTimeout(() => {
+        navigate(`/match/${sessionId}`, { 
+          state: { restaurant: restaurant }
+        })
+      }, 1500)
+    }
+  }
+
   const handleSwipe = async (direction: 'left' | 'right', restaurant: any) => {
     const vote = direction === 'right' ? 'yes' : 'no'
     
     if (sessionId) {
       await submitVote(sessionId, restaurant.id, vote)
+    }
+
+    // Store vote locally
+    setUserVotes(prev => ({
+      ...prev,
+      [restaurant.id]: vote
+    }))
+
+    // Check for unanimous vote if voting yes
+    if (vote === 'yes') {
+      checkForUnanimousVote(restaurant)
     }
 
     if (currentIndex < restaurants.length - 1) {
@@ -99,10 +130,28 @@ const VotingScreen = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader className="w-12 h-12 text-red-500 animate-spin mx-auto mb-4" />
+          <Loader className="w-12 h-12 text-bite-red animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading restaurants...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (showMatch && matchedRestaurant) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-bite-swipe-yes rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+            <Heart className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">It's a Match! 🎉</h2>
+          <p className="text-xl text-gray-600 mb-4">Everyone voted YES for</p>
+          <div className="bg-white rounded-2xl p-6 shadow-lg max-w-sm mx-auto">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">{matchedRestaurant.name}</h3>
+            <p className="text-gray-600">{matchedRestaurant.cuisine}</p>
+          </div>
         </div>
       </div>
     )
@@ -110,7 +159,7 @@ const VotingScreen = () => {
 
   if (currentIndex >= restaurants.length) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Heart className="w-8 h-8 text-green-500" />
@@ -125,7 +174,7 @@ const VotingScreen = () => {
   const currentRestaurant = restaurants[currentIndex]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -193,7 +242,7 @@ const VotingScreen = () => {
                   </button>
                   <button
                     onClick={() => handleSwipe('right', currentRestaurant)}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center space-x-2"
+                    className="flex-1 bg-bite-red hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center space-x-2"
                   >
                     <Heart className="w-5 h-5" />
                     <span>Like</span>

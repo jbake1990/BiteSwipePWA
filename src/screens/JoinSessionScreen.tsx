@@ -21,9 +21,14 @@ const JoinSessionScreen = () => {
     const result = await joinSession(sessionId.trim())
     setIsJoining(false)
     
+    console.log('Join session result:', result)
+    
     if (result.success && result.session) {
+      console.log('Navigating to waiting room with session ID:', result.session.id)
       // Navigate directly using the session data from the result
       navigate(`/waiting/${result.session.id}`)
+    } else {
+      console.log('Join failed or no session data:', result)
     }
   }
 

@@ -126,9 +126,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Search for session with matching short code
       snapshot.forEach((childSnapshot) => {
         const sessionData = childSnapshot.val()
+        console.log('Checking session:', sessionData.shortCode, 'against:', sessionCode.toUpperCase())
         if (sessionData.shortCode === sessionCode.toUpperCase()) {
           sessionId = childSnapshot.key
           session = sessionData
+          console.log('Found matching session:', sessionId, session)
         }
       })
 
@@ -157,6 +159,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await set(ref(database, `sessions/${sessionId}`), session)
       setCurrentSession(session)
       toast.success('Joined session!')
+      console.log('Returning success with session:', session)
       return { success: true, session }
     } catch (error) {
       console.error('Join session error:', error)

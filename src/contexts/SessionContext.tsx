@@ -44,7 +44,7 @@ export interface Restaurant {
 interface SessionContextType {
   currentSession: Session | null
   createSession: () => Promise<string | null>
-  joinSession: (sessionCode: string) => Promise<boolean>
+  joinSession: (sessionCode: string) => Promise<{ success: boolean; session?: Session }>
   leaveSession: (sessionId: string) => Promise<void>
   updateSessionState: (sessionId: string, state: Session['state']) => Promise<void>
   submitVote: (sessionId: string, restaurantId: string, vote: Vote['vote']) => Promise<void>
@@ -104,10 +104,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }
 
-  const joinSession = async (sessionCode: string): Promise<boolean> => {
+  const joinSession = async (sessionCode: string): Promise<{ success: boolean; session?: Session }> => {
     if (!user || !isAuthenticated) {
       toast.error('Not authenticated')
-      return false
+      return { success: false }
     }
 
     try {
@@ -117,7 +117,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       
       if (!snapshot.exists()) {
         toast.error('Session not found')
-        return false
+        return { success: false }
       }
 
       let sessionId: string | null = null
@@ -134,13 +134,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       if (!sessionId || !session) {
         toast.error('Session not found')
-        return false
+        return { success: false }
       }
 
       // Check if user is already a participant
       if (session.participants.some(p => p.id === user.uid)) {
         setCurrentSession(session)
-        return true
+        return { success: true, session }
       }
 
       // Add new participant
@@ -157,11 +157,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await set(ref(database, `sessions/${sessionId}`), session)
       setCurrentSession(session)
       toast.success('Joined session!')
-      return true
+      return { success: true, session }
     } catch (error) {
       console.error('Join session error:', error)
       toast.error('Failed to join session')
-      return false
+      return { success: false }
     }
   }
 

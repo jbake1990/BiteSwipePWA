@@ -18,17 +18,12 @@ const JoinSessionScreen = () => {
     }
 
     setIsJoining(true)
-    const success = await joinSession(sessionId.trim())
+    const result = await joinSession(sessionId.trim())
     setIsJoining(false)
     
-    if (success) {
-      // Navigate to waiting room using the current session
-      if (currentSession) {
-        navigate(`/waiting/${currentSession.id}`)
-      } else {
-        // Fallback: navigate to home if session not available
-        navigate('/')
-      }
+    if (result.success && result.session) {
+      // Navigate directly using the session data from the result
+      navigate(`/waiting/${result.session.id}`)
     }
   }
 

@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 
 const JoinSessionScreen = () => {
   const navigate = useNavigate()
-  const { joinSession } = useSession()
+  const { joinSession, currentSession } = useSession()
   const [sessionId, setSessionId] = useState('')
   const [isJoining, setIsJoining] = useState(false)
 
@@ -22,9 +22,13 @@ const JoinSessionScreen = () => {
     setIsJoining(false)
     
     if (success) {
-      // We need to get the actual session ID from the current session
-      // For now, we'll navigate to home and let the user create/join again
-      navigate('/')
+      // Navigate to waiting room using the current session
+      if (currentSession) {
+        navigate(`/waiting/${currentSession.id}`)
+      } else {
+        // Fallback: navigate to home if session not available
+        navigate('/')
+      }
     }
   }
 

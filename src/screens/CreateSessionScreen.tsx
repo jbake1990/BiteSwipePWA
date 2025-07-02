@@ -6,7 +6,7 @@ import { ArrowLeft, Loader } from 'lucide-react'
 
 const CreateSessionScreen = () => {
   const navigate = useNavigate()
-  const { createSession } = useSession()
+  const { createSession, currentSession } = useSession()
   const [isCreating, setIsCreating] = useState(false)
 
   const handleCreateSession = async () => {
@@ -15,9 +15,13 @@ const CreateSessionScreen = () => {
     setIsCreating(false)
     
     if (shortCode) {
-      // We need to get the actual session ID from the current session
-      // For now, we'll navigate to home and let the user create/join again
-      navigate('/')
+      // Navigate to waiting room using the current session
+      if (currentSession) {
+        navigate(`/waiting/${currentSession.id}`)
+      } else {
+        // Fallback: navigate to home if session not available
+        navigate('/')
+      }
     }
   }
 

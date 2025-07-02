@@ -1,7 +1,8 @@
+import React from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useFirebase } from '../contexts/FirebaseContext'
-import { Utensils, Users, Plus, LogIn } from 'lucide-react'
+import { Utensils, Users } from 'lucide-react'
 
 const HomeScreen = () => {
   const navigate = useNavigate()
@@ -39,8 +40,13 @@ const HomeScreen = () => {
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-bite-red rounded-full mb-6">
-              <Utensils className="w-10 h-10 text-white" />
+            <div className="inline-flex items-center justify-center w-24 h-24 mb-6">
+              <img
+                src="/biteswipe-logo.png"
+                alt="BiteSwipe Logo"
+                className="w-24 h-24 object-contain"
+                draggable={false}
+              />
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-4 font-poppins">
               BiteSwipe
@@ -64,18 +70,16 @@ const HomeScreen = () => {
           <motion.div variants={itemVariants} className="space-y-4 max-w-sm mx-auto">
             <button
               onClick={() => navigate('/create')}
-              className="w-full bg-bite-red hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2"
+              className="w-full bg-bite-red hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105"
             >
-              <Plus className="w-5 h-5" />
-              <span>Create Session</span>
+              Invite
             </button>
 
             <button
               onClick={() => navigate('/join')}
-              className="w-full bg-white border-2 border-bite-red text-bite-red hover:bg-red-50 font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2"
+              className="w-full bg-white border-2 border-bite-red text-bite-red hover:bg-red-50 font-semibold py-4 px-6 rounded-xl transition-all duration-200"
             >
-              <LogIn className="w-5 h-5" />
-              <span>Join Session</span>
+              Join
             </button>
           </motion.div>
 

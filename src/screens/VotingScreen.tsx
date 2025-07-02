@@ -106,6 +106,7 @@ const VotingScreen = () => {
             
             // Navigate to match screen after a short delay
             setTimeout(() => {
+              console.log('Navigating to match screen...')
               navigate(`/match/${sessionId}`, { 
                 state: { restaurant: restaurant }
               })
@@ -193,7 +194,7 @@ const VotingScreen = () => {
     )
   }
 
-  if (currentIndex >= restaurants.length) {
+  if (currentIndex >= restaurants.length && !showMatch) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">

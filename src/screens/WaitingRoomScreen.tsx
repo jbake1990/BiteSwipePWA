@@ -29,10 +29,11 @@ const WaitingRoomScreen = () => {
         console.log('WaitingRoom: User is host:', isHostUser, 'Session state:', sessionData.state)
         
         // Auto-navigate to voting when session state changes to 'voting'
-        if (sessionData.state === 'voting') {
+        // Only navigate if we're not already on the voting screen
+        if (sessionData.state === 'voting' && window.location.pathname.includes('/waiting/')) {
           console.log('WaitingRoom: Session state is voting, navigating to voting screen')
           navigate(`/voting/${sessionId}`)
-        } else {
+        } else if (sessionData.state !== 'voting') {
           console.log('WaitingRoom: Session state is NOT voting, staying in waiting room. State:', sessionData.state)
         }
       }

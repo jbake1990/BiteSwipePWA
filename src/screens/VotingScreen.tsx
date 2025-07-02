@@ -62,7 +62,7 @@ const VotingScreen = () => {
       console.log('Session updated:', sessionData)
       setSession(sessionData)
       if (sessionData?.state !== 'voting') {
-        console.log('Session state changed, navigating to home')
+        console.log('Session state changed from voting, navigating to home')
         navigate('/')
       }
     })

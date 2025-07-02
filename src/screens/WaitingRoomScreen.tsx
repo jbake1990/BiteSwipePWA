@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSession } from '../contexts/SessionContext'
@@ -68,9 +68,9 @@ const WaitingRoomScreen = () => {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bite-red mx-auto mb-4"></div>
           <p className="text-gray-600">Loading session...</p>
         </div>
       </div>
@@ -78,7 +78,7 @@ const WaitingRoomScreen = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -135,10 +135,10 @@ const WaitingRoomScreen = () => {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
-                <Users className="w-5 h-5 text-red-500" />
+                <Users className="w-5 h-5 text-bite-red" />
                 <h3 className="text-lg font-semibold text-gray-900">Participants</h3>
               </div>
-              <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+              <span className="bg-bite-peach text-bite-red px-3 py-1 rounded-full text-sm font-medium">
                 {session.participants.length}
               </span>
             </div>
@@ -154,7 +154,7 @@ const WaitingRoomScreen = () => {
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-bite-red rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-semibold">
                           {participant.name.charAt(0)}
                         </span>
@@ -167,7 +167,7 @@ const WaitingRoomScreen = () => {
                       </div>
                     </div>
                     {participant.isReady && (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <CheckCircle className="w-5 h-5 text-bite-swipe-yes" />
                     )}
                   </motion.div>
                 ))}
@@ -185,7 +185,7 @@ const WaitingRoomScreen = () => {
             >
               <button
                 onClick={startVoting}
-                className="bg-red-500 hover:bg-red-600 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 flex items-center space-x-2 mx-auto"
+                className="bg-bite-red hover:bg-red-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 flex items-center space-x-2 mx-auto"
               >
                 <Play className="w-5 h-5" />
                 <span>Start Voting</span>

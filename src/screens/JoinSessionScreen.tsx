@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useSession } from '../contexts/SessionContext'
@@ -54,7 +54,7 @@ const JoinSessionScreen = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center mb-8">
@@ -74,8 +74,8 @@ const JoinSessionScreen = () => {
         >
           <div className="bg-white rounded-2xl p-8 shadow-lg">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Loader className="w-8 h-8 text-red-500" />
+              <div className="w-16 h-16 bg-bite-peach rounded-full flex items-center justify-center mx-auto mb-4">
+                <Loader className="w-8 h-8 text-bite-red" />
               </div>
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Enter Session Code</h2>
               <p className="text-gray-600">
@@ -87,14 +87,14 @@ const JoinSessionScreen = () => {
               type="text"
               value={sessionId}
               onChange={(e) => setSessionId(e.target.value)}
-              className="w-full bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 p-2.5"
+              className="w-full bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-bite-red focus:border-bite-red p-2.5"
               placeholder="Session Code (e.g., ABC123)"
             />
 
             <button
               onClick={handleJoinSession}
               disabled={isJoining}
-              className="w-full bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2"
+              className="w-full bg-bite-red hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2"
             >
               {isJoining ? (
                 <>

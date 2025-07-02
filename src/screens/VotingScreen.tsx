@@ -83,15 +83,23 @@ const VotingScreen = () => {
         console.log('Total participants who voted:', participantIds.length)
         console.log('Yes votes:', yesVotes.length)
         console.log('Required for unanimous:', session?.participants?.length)
+        console.log('Yes voters:', yesVotes)
         
         // If all participants voted yes for this restaurant
         if (yesVotes.length === session?.participants?.length && session?.participants?.length > 0) {
           console.log('Unanimous vote condition met! Looking for restaurant...')
-          const restaurant = restaurants.find(r => r.id === restaurantId || r.yelpId === restaurantId)
+          
+          // Try to find restaurant by yelpId first, then by id
+          let restaurant = restaurants.find(r => r.yelpId === restaurantId)
+          if (!restaurant) {
+            restaurant = restaurants.find(r => r.id === restaurantId)
+          }
+          
           console.log('Found restaurant:', restaurant?.name, 'for ID:', restaurantId)
+          console.log('Available restaurants:', restaurants.map(r => ({ id: r.id, yelpId: r.yelpId, name: r.name })))
           
           if (restaurant) {
-            console.log('Unanimous vote detected for:', restaurant.name)
+            console.log('🎉 Unanimous vote detected for:', restaurant.name)
             setMatchedRestaurant(restaurant)
             setShowMatch(true)
             toast.success('It\'s a match! 🎉')
@@ -103,9 +111,10 @@ const VotingScreen = () => {
               })
             }, 1500)
           } else {
-            console.log('Restaurant not found for ID:', restaurantId)
-            console.log('Available restaurants:', restaurants.map(r => ({ id: r.id, yelpId: r.yelpId, name: r.name })))
+            console.log('❌ Restaurant not found for ID:', restaurantId)
           }
+        } else {
+          console.log('Not unanimous - need', session?.participants?.length, 'yes votes, got', yesVotes.length)
         }
       })
     })

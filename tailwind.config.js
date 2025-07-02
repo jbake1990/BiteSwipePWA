@@ -10,9 +10,14 @@ export default {
         'poppins': ['Poppins', 'sans-serif'],
       },
       colors: {
-        'bite-red': '#FF6B6B',
-        'bite-peach': '#FFE5E5',
-        'bite-gray': '#F8F9FA',
+        'bite-red': '#E44F34',
+        'bite-peach': '#FAD4A0',
+        'bite-background': '#FFF4DC',
+        'bite-text-primary': '#333333',
+        'bite-text-secondary': '#666666',
+        'bite-text-tertiary': '#999999',
+        'bite-swipe-yes': '#38B000',
+        'bite-swipe-no': '#E44F34',
       },
       animation: {
         'swipe-left': 'swipeLeft 0.3s ease-out',

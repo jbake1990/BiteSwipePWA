@@ -21,15 +21,20 @@ const WaitingRoomScreen = () => {
       setSession(sessionData)
       if (sessionData && user) {
         setIsHost(sessionData.hostId === user.uid)
+        
+        // Auto-navigate to voting when session state changes to 'voting'
+        if (sessionData.state === 'voting') {
+          navigate(`/voting/${sessionId}`)
+        }
       }
     })
 
     return unsubscribe
-  }, [sessionId, user, observeSession])
+  }, [sessionId, user, observeSession, navigate])
 
   const copySessionId = () => {
-    navigator.clipboard.writeText(sessionId!)
-    toast.success('Session ID copied!')
+    navigator.clipboard.writeText(session.shortCode || sessionId!)
+    toast.success('Session code copied!')
   }
 
   const shareSession = async () => {
@@ -37,7 +42,7 @@ const WaitingRoomScreen = () => {
       try {
         await navigator.share({
           title: 'Join my BiteSwipe session',
-          text: `Join my BiteSwipe session: ${sessionId}`,
+          text: `Join my BiteSwipe session: ${session.shortCode || sessionId}`,
           url: window.location.origin
         })
       } catch (error) {
@@ -92,7 +97,9 @@ const WaitingRoomScreen = () => {
             <div className="text-center mb-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Session ID</h2>
               <div className="bg-gray-100 rounded-xl p-4 mb-4">
-                <p className="text-2xl font-mono font-bold text-gray-900">{sessionId}</p>
+                <p className="text-2xl font-mono font-bold text-gray-900">
+                  {session.shortCode || sessionId}
+                </p>
               </div>
               <div className="flex space-x-2 justify-center">
                 <button

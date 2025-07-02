@@ -3,6 +3,7 @@ import { useFirebase } from './FirebaseContext'
 import { ref, push, get, onValue, off, set, update } from 'firebase/database'
 import { database } from '../config/firebase'
 import toast from 'react-hot-toast'
+import { generateSessionCode } from '../utils/sessionUtils'
 
 export interface Participant {
   id: string
@@ -13,6 +14,7 @@ export interface Participant {
 
 export interface Session {
   id: string
+  shortCode: string
   hostId: string
   participants: Participant[]
   state: 'waiting' | 'voting' | 'completed'
@@ -42,7 +44,7 @@ export interface Restaurant {
 interface SessionContextType {
   currentSession: Session | null
   createSession: () => Promise<string | null>
-  joinSession: (sessionId: string) => Promise<boolean>
+  joinSession: (sessionCode: string) => Promise<boolean>
   leaveSession: (sessionId: string) => Promise<void>
   updateSessionState: (sessionId: string, state: Session['state']) => Promise<void>
   submitVote: (sessionId: string, restaurantId: string, vote: Vote['vote']) => Promise<void>
@@ -72,6 +74,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const sessionRef = push(ref(database, 'sessions'))
       const sessionId = sessionRef.key!
+      const shortCode = generateSessionCode()
       
       const participant: Participant = {
         id: user.uid,
@@ -82,6 +85,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       const session: Session = {
         id: sessionId,
+        shortCode: shortCode,
         hostId: user.uid,
         participants: [participant],
         state: 'waiting',
@@ -92,7 +96,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await set(sessionRef, session)
       setCurrentSession(session)
       toast.success('Session created!')
-      return sessionId
+      return shortCode // Return short code instead of Firebase key
     } catch (error) {
       console.error('Create session error:', error)
       toast.error('Failed to create session')
@@ -100,23 +104,39 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }
 
-  const joinSession = async (sessionId: string): Promise<boolean> => {
+  const joinSession = async (sessionCode: string): Promise<boolean> => {
     if (!user || !isAuthenticated) {
       toast.error('Not authenticated')
       return false
     }
 
     try {
-      const sessionRef = ref(database, `sessions/${sessionId}`)
-      const snapshot = await get(sessionRef)
+      // First try to find session by short code
+      const sessionsRef = ref(database, 'sessions')
+      const snapshot = await get(sessionsRef)
       
       if (!snapshot.exists()) {
         toast.error('Session not found')
         return false
       }
 
-      const session: Session = snapshot.val()
-      
+      let sessionId: string | null = null
+      let session: Session | null = null
+
+      // Search for session with matching short code
+      snapshot.forEach((childSnapshot) => {
+        const sessionData = childSnapshot.val()
+        if (sessionData.shortCode === sessionCode.toUpperCase()) {
+          sessionId = childSnapshot.key
+          session = sessionData
+        }
+      })
+
+      if (!sessionId || !session) {
+        toast.error('Session not found')
+        return false
+      }
+
       // Check if user is already a participant
       if (session.participants.some(p => p.id === user.uid)) {
         setCurrentSession(session)
@@ -134,7 +154,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       session.participants.push(newParticipant)
       session.updatedAt = Date.now()
 
-      await set(sessionRef, session)
+      await set(ref(database, `sessions/${sessionId}`), session)
       setCurrentSession(session)
       toast.success('Joined session!')
       return true

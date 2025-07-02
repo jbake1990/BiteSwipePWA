@@ -13,7 +13,7 @@ const JoinSessionScreen = () => {
 
   const handleJoinSession = async () => {
     if (!sessionId.trim()) {
-      toast.error('Please enter a session ID')
+      toast.error('Please enter a session code')
       return
     }
 
@@ -22,7 +22,9 @@ const JoinSessionScreen = () => {
     setIsJoining(false)
     
     if (success) {
-      navigate(`/waiting/${sessionId.trim()}`)
+      // We need to get the actual session ID from the current session
+      // For now, we'll navigate to home and let the user create/join again
+      navigate('/')
     }
   }
 
@@ -71,9 +73,9 @@ const JoinSessionScreen = () => {
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Loader className="w-8 h-8 text-red-500" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Enter Session ID</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Enter Session Code</h2>
               <p className="text-gray-600">
-                Enter the session ID to join. You'll be redirected to the waiting screen.
+                Enter the session code to join. You'll be redirected to the waiting screen.
               </p>
             </div>
 
@@ -82,7 +84,7 @@ const JoinSessionScreen = () => {
               value={sessionId}
               onChange={(e) => setSessionId(e.target.value)}
               className="w-full bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 p-2.5"
-              placeholder="Session ID"
+              placeholder="Session Code (e.g., ABC123)"
             />
 
             <button

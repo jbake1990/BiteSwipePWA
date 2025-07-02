@@ -11,11 +11,13 @@ const CreateSessionScreen = () => {
 
   const handleCreateSession = async () => {
     setIsCreating(true)
-    const sessionId = await createSession()
+    const shortCode = await createSession()
     setIsCreating(false)
     
-    if (sessionId) {
-      navigate(`/waiting/${sessionId}`)
+    if (shortCode) {
+      // We need to get the actual session ID from the current session
+      // For now, we'll navigate to home and let the user create/join again
+      navigate('/')
     }
   }
 

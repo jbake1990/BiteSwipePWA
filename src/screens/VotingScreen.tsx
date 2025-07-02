@@ -69,16 +69,27 @@ const VotingScreen = () => {
 
     const unsubscribeVotes = observeVotes(sessionId, (votes) => {
       console.log('Votes updated:', votes)
+      console.log('Current session participants:', session?.participants?.length)
       setAllVotes(votes)
       
       // Check for unanimous votes
       Object.entries(votes).forEach(([restaurantId, participantVotes]) => {
+        console.log('Checking restaurant ID:', restaurantId)
+        console.log('Participant votes:', participantVotes)
+        
         const participantIds = Object.keys(participantVotes as Record<string, any>)
         const yesVotes = participantIds.filter(id => (participantVotes as Record<string, any>)[id].vote === 'yes')
         
+        console.log('Total participants who voted:', participantIds.length)
+        console.log('Yes votes:', yesVotes.length)
+        console.log('Required for unanimous:', session?.participants?.length)
+        
         // If all participants voted yes for this restaurant
         if (yesVotes.length === session?.participants?.length && session?.participants?.length > 0) {
+          console.log('Unanimous vote condition met! Looking for restaurant...')
           const restaurant = restaurants.find(r => r.id === restaurantId || r.yelpId === restaurantId)
+          console.log('Found restaurant:', restaurant?.name, 'for ID:', restaurantId)
+          
           if (restaurant) {
             console.log('Unanimous vote detected for:', restaurant.name)
             setMatchedRestaurant(restaurant)
@@ -91,6 +102,9 @@ const VotingScreen = () => {
                 state: { restaurant: restaurant }
               })
             }, 1500)
+          } else {
+            console.log('Restaurant not found for ID:', restaurantId)
+            console.log('Available restaurants:', restaurants.map(r => ({ id: r.id, yelpId: r.yelpId, name: r.name })))
           }
         }
       })
@@ -111,13 +125,13 @@ const VotingScreen = () => {
     const vote = direction === 'right' ? 'yes' : 'no'
     
     if (sessionId) {
-      await submitVote(sessionId, restaurant.id, vote)
+      await submitVote(sessionId, restaurant.yelpId, vote)
     }
 
     // Store vote locally
     setUserVotes(prev => ({
       ...prev,
-      [restaurant.id]: vote
+      [restaurant.yelpId]: vote
     }))
 
     if (currentIndex < restaurants.length - 1) {

@@ -19,6 +19,9 @@ const WaitingRoomScreen = () => {
 
     const unsubscribe = observeSession(sessionId, (sessionData) => {
       console.log('WaitingRoom: Session data received:', sessionData)
+      console.log('WaitingRoom: Session state:', sessionData?.state)
+      console.log('WaitingRoom: Session participants:', sessionData?.participants?.length)
+      
       setSession(sessionData)
       if (sessionData && user) {
         const isHostUser = sessionData.hostId === user.uid
@@ -29,6 +32,8 @@ const WaitingRoomScreen = () => {
         if (sessionData.state === 'voting') {
           console.log('WaitingRoom: Session state is voting, navigating to voting screen')
           navigate(`/voting/${sessionId}`)
+        } else {
+          console.log('WaitingRoom: Session state is NOT voting, staying in waiting room. State:', sessionData.state)
         }
       }
     })

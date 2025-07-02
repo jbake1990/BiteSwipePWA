@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useSession, useFirebase } from '../contexts'
+import { useSession } from '../contexts/SessionContext'
+import { useFirebase } from '../contexts/FirebaseContext'
 import { ArrowLeft, Users, Play, Copy, Share2, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
